@@ -1,0 +1,31 @@
+import pandas as pd
+
+# Function to calculate Cronbach's alpha
+def cronbach_alpha(df):
+    # Number of items
+    n_items = df.shape[1]
+    
+    # Variance of total scores
+    total_var = df.sum(axis=1).var(ddof=1)
+    
+    # Sum of item variances
+    item_var_sum = df.var(axis=0, ddof=1).sum()
+    
+    # Cronbach's alpha calculation
+    alpha = (n_items / (n_items - 1)) * (1 - (item_var_sum / total_var))
+    
+    return alpha
+
+# File path (change this to your actual file path)
+file_path = "/Users/khaledaljaber/Desktop/APhD Loughborough/data analysis/Projec success index/seperating groups/financial_survey_data.csv"
+
+# Load the CSV file
+data = pd.read_csv(file_path)
+
+# Assuming the first column is labels and the rest are Likert scale responses
+likert_data = data.iloc[:, 1:]
+
+# Calculate Cronbach's alpha
+alpha = cronbach_alpha(likert_data)
+
+print(f"Cronbach's alpha: {alpha}")
