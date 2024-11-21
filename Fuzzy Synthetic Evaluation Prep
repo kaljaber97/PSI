@@ -1,0 +1,39 @@
+import pandas as pd
+
+# Load the survey data
+file_path = '/Users/khaledaljaber/Desktop/APhD Loughborough/data analysis/Projec success index/survey_data.csv'  # Update with your correct file path
+survey_data = pd.read_csv(file_path)
+
+# Calculate the mean for each factor, ignoring the 'respondant' column
+factor_means = survey_data.drop(columns=['respondant']).mean()
+
+# Min-max normalization: scale means such that the highest mean is 1 and the lowest mean is 0
+normalized_factors = (factor_means - factor_means.min()) / (factor_means.max() - factor_means.min())
+
+# Calculate the sum of all means
+sum_of_means = factor_means.sum()
+
+# Calculate the weight of each factor by dividing each mean by the sum of means
+weights = factor_means / sum_of_means
+
+# Create a DataFrame to display the results
+results = pd.DataFrame({
+    'Factor': factor_means.index,
+    'Mean': factor_means.values,
+    'Normalized (0 to 1)': normalized_factors.values,
+    'Weight': weights.values
+})
+
+# Calculate the score distribution and percentages for each factor
+score_distribution = survey_data.drop(columns=['respondant']).apply(lambda x: x.value_counts().sort_index())
+score_percentages = score_distribution.div(score_distribution.sum(axis=0), axis=1)
+
+# Combine results with score distributions and percentages
+final_results = results.join(score_distribution.T, on='Factor', rsuffix='_count').join(score_percentages.T, on='Factor', rsuffix='_percent')
+
+# Save the final results to a CSV file in the same directory with the specified name
+output_file_path = '/Users/khaledaljaber/Desktop/APhD Loughborough/data analysis/Projec success index/Survey_results.csv'
+final_results.to_csv(output_file_path, index=False)
+
+# Print the results
+print(final_results)
